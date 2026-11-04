@@ -10,6 +10,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+option(PREFIXSIM_ENABLE_TESTS "build the PrefixSim tests" ON)
+
 # ==============================================================================
 # libCacheSim, from the submodule
 # ==============================================================================
@@ -79,3 +81,10 @@ target_link_libraries(traceConvLLM prefixsim_lib)
 
 install(TARGETS prefixsim traceConvLLM RUNTIME DESTINATION bin)
 
+# ==============================================================================
+# tests
+# ==============================================================================
+if(PREFIXSIM_ENABLE_TESTS)
+    enable_testing()
+    add_subdirectory(test)
+endif()
