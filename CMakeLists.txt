@@ -42,6 +42,13 @@ get_directory_property(LIBCACHESIM_CXX_FLAGS
 get_directory_property(GLib_INCLUDE_DIRS
     DIRECTORY ${LIBCACHESIM_DIR} DEFINITION GLib_INCLUDE_DIRS)
 
+# libCacheSim links glib by name and adds its directories to the linker search
+# path for its own targets only, so PrefixSim's executables need them too
+# (glib is off the default path on macOS).
+get_directory_property(GLib_LIBRARY_DIRS
+    DIRECTORY ${LIBCACHESIM_DIR} DEFINITION GLib_LIBRARY_DIRS)
+link_directories(${GLib_LIBRARY_DIRS})
+
 # ==============================================================================
 # prefixsim
 # ==============================================================================
