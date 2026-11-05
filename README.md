@@ -39,9 +39,8 @@ LRU, at a lower hit ratio.
 - **46 eviction policies**, from [libCacheSim](https://github.com/1a1a11a/libCacheSim):
   LRU, ARC, S3-FIFO, SIEVE, W-TinyLFU, LIRS, LHD and the other classics; the
   Belady and BeladyCompute oracles; published prefix-cache policies; and
-  session-level and prefix-tree-aware policies. The default build has 43 of
-  them (S4-FIFO, LRB and 3LCache need a build option); `prefixsim --list-algos`
-  prints what yours has.
+  session-level and prefix-tree-aware policies. See
+  [Eviction policies](#eviction-policies).
 - **Streams real traces in one pass.** The [lcp](doc/lcp_format.md) format
   stores next-access times, so `prefixsim` holds one request at a time: an LRU
   run over 656M block accesses takes 105 s and 146 MiB (see
@@ -80,6 +79,47 @@ To simulate your own trace, convert it from JSONL, one request per line with a
 ```
 
 The [quickstart](doc/quickstart.md) walks through the options and the output.
+
+## Eviction policies
+
+The policies are implemented in libCacheSim. The name in `code` is what you
+pass to `--algo`, and `prefixsim --list-algos` prints the ones your build has.
+[Which algorithms work](doc/design.md#which-algorithms-work) explains how each
+fits a prefix cache, and [pinning](doc/design.md#phase-2--allocate) which ones
+keep a request's own blocks while making room for it.
+
+Prefix-cache policies:
+
+- Compute-aware, weighting each block by the prefill compute a hit on it saves
+  (`--cost-model`):
+  [BeladyCompute](https://github.com/1a1a11a/libCacheSim/blob/develop/libCacheSim/cache/eviction/BeladyCompute.c) `belady_compute` (needs future information),
+  [GDSF-Compute](https://github.com/1a1a11a/libCacheSim/blob/develop/libCacheSim/cache/eviction/cpp/GDSF_compute.cpp) `gdsf_compute`,
+  [LHD-Compute](https://github.com/1a1a11a/libCacheSim/blob/develop/libCacheSim/cache/eviction/LHD/LHD_compute_interface.cpp) `lhd_compute`,
+  [RandomCompute](https://github.com/1a1a11a/libCacheSim/blob/develop/libCacheSim/cache/eviction/RandomCompute.c) `random_compute`,
+  [RandomComputeSmallQueue](https://github.com/1a1a11a/libCacheSim/blob/develop/libCacheSim/cache/eviction/RandomComputeSmallQueue.c) `random_compute_small_queue`
+- Published prefix-cache policies:
+  [Workload-Aware](https://github.com/1a1a11a/libCacheSim/blob/develop/libCacheSim/cache/eviction/cpp/WorkloadAware.cpp) `workload_aware` ([ATC'25](https://arxiv.org/abs/2506.02634)),
+  [AsymCache](https://github.com/1a1a11a/libCacheSim/blob/develop/libCacheSim/cache/eviction/cpp/AsymCache.cpp) `asym_cache` ([arXiv:2606.02964](https://arxiv.org/abs/2606.02964))
+- Session-level, evicting a whole conversation rather than a block:
+  [session policies](https://github.com/1a1a11a/libCacheSim/blob/develop/libCacheSim/cache/eviction/cpp/sessionCache.cpp) `session_lru`, `session_arc`,
+  `session_s3fifo`, `session_random_compute`, `session_belady` (needs future
+  information)
+- Partial-node, sampling prefix-tree nodes and evicting a node's deepest block:
+  [PartialNodeRandomCompute](https://github.com/1a1a11a/libCacheSim/blob/develop/libCacheSim/cache/eviction/cpp/PartialNodeRandomCompute.cpp) `partial_node_random_compute`,
+  [PartialNodeRandomFreq](https://github.com/1a1a11a/libCacheSim/blob/develop/libCacheSim/cache/eviction/cpp/PartialNodeRandomFreq.cpp) `partial_node_random_freq`,
+  [PartialNodeRandomComputeSmallQueue](https://github.com/1a1a11a/libCacheSim/blob/develop/libCacheSim/cache/eviction/cpp/PartialNodeRandomComputeSmallQueue.cpp) `partial_node_random_compute_small_queue`
+
+General-purpose policies, linked to their sources in
+[libCacheSim's list](https://github.com/1a1a11a/libCacheSim#eviction-algorithms):
+
+- `lru`, `fifo`, `clock`, `sieve`, `slru`, `mru`, `random`, `randomtwo`,
+  `randomlru`, `lru-prob`, `size`, `fifo-merge`
+- `lfu`, `lfuda`, `arc`, `twoq`, `car`, `lirs`, `hyperbolic`, `lecar`,
+  `cacheus`, `lhd`, `gdsf`
+- `wtinylfu`, `qdlp`, `s3fifo`, `s3fifod`
+- `belady` (needs future information)
+- `s4fifo`, `lrb` and `3lcache`, which need a build option:
+  `-DENABLE_S4FIFO=ON`, `-DENABLE_LRB=ON` and `-DENABLE_3L_CACHE=ON`
 
 ## Traces
 
