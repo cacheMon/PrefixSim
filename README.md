@@ -1,4 +1,9 @@
-# PrefixSim
+<p>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="doc/assets/logo-dark.svg">
+    <img alt="PrefixSim" src="doc/assets/logo.svg" width="380">
+  </picture>
+</p>
 
 [![build](https://github.com/cacheMon/PrefixSim/actions/workflows/build.yml/badge.svg)](https://github.com/cacheMon/PrefixSim/actions/workflows/build.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
