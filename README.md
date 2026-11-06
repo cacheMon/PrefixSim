@@ -32,6 +32,19 @@ Qwen3-Coder-30B's bf16 KV cache) and that model's measured cost per block:
 The compute-aware `random_compute` saves 10 points more prefill compute than
 LRU, at a lower hit ratio.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="doc/figures/compute_saving-dark.svg">
+  <img alt="Compute saving ratio against cache size, from 16k to 256k blocks, for LRU, S3-FIFO, RandomCompute and the BeladyCompute oracle, on the freeinference and chutes traces" src="doc/figures/compute_saving.svg">
+</picture>
+
+The gap is widest when the cache is tight. On freeinference, `random_compute`'s
+lead over LRU shrinks from 10 points at 16k blocks to under 1 point from 64k
+blocks on, where every policy saves over 91% of prefill compute. On chutes,
+with 3.5 times as many distinct blocks, `random_compute` matches LRU from 32k
+blocks on, S3-FIFO trails both, and the oracle stays ahead of LRU by 9 points
+at 16k blocks and 2 points at 256k. The data and the script that plots it are
+in [`doc/figures/`](doc/figures/).
+
 ## Why PrefixSim
 
 - **The serving constraint, modelled.** A request needs *all* of its KV blocks
@@ -169,7 +182,7 @@ zstd's 128 MiB decompression window, which does not grow with the trace.
 | `src/` | the simulator: trace readers, the serve loop, the lcp and JSONL writers, the CLI |
 | `tools/` | `traceConvLLM`, the JSONL ↔ lcp converter |
 | `test/` | tests of the serve loop and the lcp round trip |
-| `doc/` | the documentation |
+| `doc/` | the documentation, the logo, and the README's figure with its data and plotting script |
 | `libCacheSim/` | the [libCacheSim](https://github.com/1a1a11a/libCacheSim) submodule: the eviction algorithms and the lcp reader |
 
 libCacheSim's build options pass through, for example `-DENABLE_S4FIFO=ON`, and
