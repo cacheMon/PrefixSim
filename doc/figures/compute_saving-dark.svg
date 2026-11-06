@@ -1304,12 +1304,14 @@ L 691.708523 166.127774
 L 482.336706 179.770434 
 L 552.127312 171.526004 
 L 621.917917 167.15288 
+L 691.708523 164.383908 
 " clip-path="url(#pf18ab8ab21)" style="fill: none; stroke: #199e70; stroke-width: 2; stroke-linecap: round"/>
     <g clip-path="url(#pf18ab8ab21)">
      <use xlink:href="#mc175980ffd" x="412.5461" y="198.447619" style="fill: #199e70; stroke: #0d1117; stroke-width: 1.5; stroke-linejoin: miter"/>
      <use xlink:href="#mc175980ffd" x="482.336706" y="179.770434" style="fill: #199e70; stroke: #0d1117; stroke-width: 1.5; stroke-linejoin: miter"/>
      <use xlink:href="#mc175980ffd" x="552.127312" y="171.526004" style="fill: #199e70; stroke: #0d1117; stroke-width: 1.5; stroke-linejoin: miter"/>
      <use xlink:href="#mc175980ffd" x="621.917917" y="167.15288" style="fill: #199e70; stroke: #0d1117; stroke-width: 1.5; stroke-linejoin: miter"/>
+     <use xlink:href="#mc175980ffd" x="691.708523" y="164.383908" style="fill: #199e70; stroke: #0d1117; stroke-width: 1.5; stroke-linejoin: miter"/>
     </g>
    </g>
    <g id="line2d_42">
