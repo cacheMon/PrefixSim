@@ -2,8 +2,8 @@
 // addressing, cleared in O(1) by bumping an epoch, so one instance serves every
 // request without allocating. count() is a multiply and an array read: the pin
 // predicate calls it for every pinned object cache_skip_pinned walks past (~9
-// per block accessed, LRU at 64k blocks), which made std::unordered_set's modulo
-// and node chase the hot spot. Iterates in insertion order.
+// per block accessed, LRU at 64k blocks), which made std::unordered_set's
+// modulo and node chase the hot spot. Iterates in insertion order.
 
 #pragma once
 
@@ -45,7 +45,9 @@ class FlatIdSet {
   std::vector<uint64_t>::const_iterator end() const { return ids_.end(); }
 
  private:
-  size_t slot(uint64_t id) const { return (id * 0x9E3779B97F4A7C15ull >> 32) & mask_; }
+  size_t slot(uint64_t id) const {
+    return (id * 0x9E3779B97F4A7C15ull >> 32) & mask_;
+  }
   void grow() {  // to twice the size, keeping the current ids
     const size_t cap = std::max<size_t>(64, 2 * stamps_.size());
     keys_.assign(cap, 0);
