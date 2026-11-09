@@ -45,8 +45,20 @@ class FlatIdSet {
   std::vector<uint64_t>::const_iterator end() const { return ids_.end(); }
 
  private:
+  // Hashes ids in groups of 8: the group picks a run of 8 slots and the low 3
+  // bits the slot within it. lcp ids are dense and given out in first-access
+  // order, so a request's blocks mostly have consecutive ids, and the pin
+  // predicate is asked about them run after run as cache_skip_pinned walks the
+  // same pinned blocks for every eviction. Keeping neighbours in one cache line
+  // is what made std::unordered_set (id % prime) fast there. Hashing each id
+  // on its own scattered them: LRU at 16k blocks on the first 100k
+  // freeinference requests took 12% longer than with std::unordered_set on an
+  // AMD Zen 4, and hashing groups takes 8% less. The groups themselves are
+  // still scattered, so ids that are not consecutive (raw hashes) hash as well
+  // as before.
   size_t slot(uint64_t id) const {
-    return (id * 0x9E3779B97F4A7C15ull >> 32) & mask_;
+    const uint64_t group = (id >> 3) * 0x9E3779B97F4A7C15ull >> 32;
+    return ((group << 3) | (id & 7)) & mask_;
   }
   void grow() {  // to twice the size, keeping the current ids
     const size_t cap = std::max<size_t>(64, 2 * stamps_.size());
