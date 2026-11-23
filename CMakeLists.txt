@@ -86,10 +86,8 @@ add_executable(traceConvLLM tools/traceConvLLM.cpp)
 prefixsim_target_options(traceConvLLM)
 target_link_libraries(traceConvLLM prefixsim_lib)
 
-# traceReuseStat -- reuse locality of a trace: sigma_cross, the share of reuse
-# that crosses session boundaries, with gap percentiles. Same reader as the
-# simulator, one streaming pass, no simulation. See doc/reuse_locality.md for
-# what it decides: outside the window it shows, victim choice has no budget.
+# traceReuseStat -- descriptive reuse locality, fixed-memory quantile bounds
+# and sparse raw-id state; policy advantage still needs a simulation.
 add_executable(traceReuseStat tools/traceReuseStat.cpp)
 prefixsim_target_options(traceReuseStat)
 target_link_libraries(traceReuseStat prefixsim_lib)
