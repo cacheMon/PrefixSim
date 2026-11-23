@@ -1,10 +1,9 @@
 # Reuse locality: the share of reuse that crosses sessions
 
-`traceReuseStat` reports one number that decides whether an eviction policy can
-matter on a given trace: **sigma_cross**, the fraction of *reuse* accesses whose
-previous accessor belongs to a different session. Reuse that stays inside one
-session is already captured by recency; reuse that crosses sessions only
-survives if the victim choice protects a block whose last access is old.
+`traceReuseStat` reports **sigma_cross**, the fraction of reuse accesses whose
+previous accessor belonged to a different session. This is a **locality
+descriptor**, not proof that any eviction policy must win. Cache capacity,
+access ordering, pinned blocks and compute costs also matter.
 
 The quantities it prints:
 
@@ -20,6 +19,22 @@ The quantities it prints:
 
 `--gap-hist` adds log2 buckets of the cross-session gap, and
 `--per-request-out FILE` writes per-request counts for a time-series view.
+### Streaming memory and quantile accuracy
+
+The previous implementation retained every reuse gap in large vectors and
+then copied them for sorting. The replacement uses a **fixed-memory**
+deterministic quantile summary: exact through 4,096 gaps; otherwise a
+64-subdivisions-per-octave histogram with **<=1/64 relative bucket width**
+for positive gaps. Printed `*_interval_s` bounds contain each reported
+p50/p90; `gap_quantile_method` specifies when the output is approximate.
+The `--gap-hist` histogram remains exact, and nonmonotone/nonfinite gaps
+cause an error. Two fixed histograms together occupy roughly 2.1 MB.
+
+Last-access state still grows with **distinct block IDs**. Dense interned
+prefix IDs use vectors; sparse raw hash IDs use a map, avoiding allocation
+based on the numeric magnitude of a hash. The production-scale example
+will still require substantial memory for its distinct-block table.
+
 Requested requests are ordered by completion time, so the first accessor of a
 block is the accessor that registered it, exactly as the simulator replays it.
 
@@ -56,12 +71,11 @@ and the trace-level sigma_cross is 0.995.
 
 Eviction results are usually reported as a hit-ratio delta with no locality
 descriptor, so two results that disagree cannot be reconciled without re-running
-both traces. `sigma_cross`, the capacity ratio `C / W` and the pinned fraction
-are enough to place any result on the (sharing, slack) plane; this tool computes
-the first one from a trace in one streaming pass, with the same reader the
-simulator uses, so the number always matches what `prefixsim` replayed.
+both traces. The statistic `sigma_cross`, capacity ratio `C/W`, pinned fraction and
+the measured reuse-gap distribution describe the workload but **do not**
+determine a cache-policy ranking without an actual simulation comparison.
 
 ```
-g++ -O2 -o traceReuseStat tools/traceReuseStat.cpp  # or: ninja -C _build traceReuseStat
+cmake -G Ninja -B build && ninja -C build traceReuseStat
 ./_build/bin/traceReuseStat traces/freeinference.lcp.zst --gap-hist
 ```
