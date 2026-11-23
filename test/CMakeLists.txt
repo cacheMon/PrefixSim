@@ -15,3 +15,12 @@ add_test(NAME testLcp COMMAND testLcp)
 add_executable(testGapQuantiles test_gap_quantiles.cpp)
 prefixsim_target_options(testGapQuantiles)
 add_test(NAME testGapQuantiles COMMAND testGapQuantiles)
+
+# Real trace reader/CLI: large raw ids, exact/approx quantiles and bad times.
+find_package(Python3 COMPONENTS Interpreter QUIET)
+if(Python3_Interpreter_FOUND)
+    add_test(NAME testTraceReuseStatCli
+        COMMAND ${Python3_EXECUTABLE}
+                ${CMAKE_CURRENT_SOURCE_DIR}/test_trace_reuse_stat_cli.py
+                $<TARGET_FILE:traceReuseStat>)
+endif()
