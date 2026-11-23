@@ -10,3 +10,8 @@ add_executable(testLcp test_lcp.cpp)
 prefixsim_target_options(testLcp)
 target_link_libraries(testLcp prefixsim_lib)
 add_test(NAME testLcp COMMAND testLcp)
+
+# Fixed-size quantiles: exact tiny samples, certified intervals on 2M gaps.
+add_executable(testGapQuantiles test_gap_quantiles.cpp)
+prefixsim_target_options(testGapQuantiles)
+add_test(NAME testGapQuantiles COMMAND testGapQuantiles)
