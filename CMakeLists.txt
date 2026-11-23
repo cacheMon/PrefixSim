@@ -86,7 +86,13 @@ add_executable(traceConvLLM tools/traceConvLLM.cpp)
 prefixsim_target_options(traceConvLLM)
 target_link_libraries(traceConvLLM prefixsim_lib)
 
-install(TARGETS prefixsim traceConvLLM RUNTIME DESTINATION bin)
+# traceReuseStat -- descriptive reuse locality, fixed-memory quantile bounds
+# and sparse raw-id state; policy advantage still needs a simulation.
+add_executable(traceReuseStat tools/traceReuseStat.cpp)
+prefixsim_target_options(traceReuseStat)
+target_link_libraries(traceReuseStat prefixsim_lib)
+
+install(TARGETS prefixsim traceConvLLM traceReuseStat RUNTIME DESTINATION bin)
 
 # ==============================================================================
 # tests
